@@ -21,6 +21,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AddTransactionActivity"
+            android:exported="true" />
+
+        <!-- Transaction List Activity -->
+        <activity
+            android:name=".TransactionListActivity"
+            android:exported="true" />
+
+        <!-- Statistics Activity -->
+        <activity
+            android:name=".StatisticsActivity"
+            android:exported="true" />
+
+        <!-- Budget Activity -->
+        <activity
+            android:name=".BudgetActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

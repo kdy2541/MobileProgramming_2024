@@ -28,6 +28,7 @@ public abstract class AppDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     AppDatabase.class, "budget_manager_db")
+                            .fallbackToDestructiveMigration()
                             .build();
                 }
             }

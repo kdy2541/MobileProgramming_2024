@@ -2,6 +2,9 @@ package com.example.mobile.database.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
+import com.example.mobile.util.DateConverter;
 
 import java.util.Date;
 
@@ -9,6 +12,7 @@ import java.util.Date;
 public class Transaction {
     @PrimaryKey(autoGenerate = true)
     private int id;
+    @TypeConverters(DateConverter.class)
     private Date date;
     private int amount;
     private String category;

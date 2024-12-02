@@ -21,10 +21,15 @@ public class TransactionListActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recycler_view_transactions);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        new Thread(() -> {
-            AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-            List<Transaction> transactions = db.transactionDAO().getAllTransactions().getValue();
-            runOnUiThread(() -> recyclerView.setAdapter(new TransactionAdapter(transactions != null ? transactions : new ArrayList<>())));
-        }).start();
+        AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+
+        // LiveData 관찰 추가
+        db.transactionDAO().getAllTransactions().observe(this, transactions -> {
+            if (transactions != null) {
+                recyclerView.setAdapter(new TransactionAdapter(transactions));
+            } else {
+                recyclerView.setAdapter(new TransactionAdapter(new ArrayList<>()));
+            }
+        });
     }
 }
