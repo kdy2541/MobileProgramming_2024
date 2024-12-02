@@ -38,25 +38,30 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
-    //룸 디비
+    // Room 디비
     implementation("androidx.room:room-runtime:2.5.0")
-    annotationProcessor("androidx.room:room-compiler:2.5.0")
 
-    //MVVM
+
+    annotationProcessor("androidx.room:room-compiler:2.5.0")
+    androidTestImplementation("androidx.room:room-testing:2.5.0") // Room 테스트용
+
+    // MVVM (LiveData 및 ViewModel)
     implementation("androidx.lifecycle:lifecycle-livedata:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
 
-    //리사이클뷰
+    // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.0")
 
-    //MP안드로이드 차트
+    // MPAndroidChart (차트)
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
-    //워크매니저
+    // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.8.0")
 
-
-    testImplementation(libs.junit)
+    // 테스트 라이브러리
+    implementation(libs.ext.junit)
+    implementation(libs.junit.junit)
+    testImplementation("junit:junit:4.13.2")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
