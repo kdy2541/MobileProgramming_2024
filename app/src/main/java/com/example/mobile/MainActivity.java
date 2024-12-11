@@ -1,46 +1,105 @@
 package com.example.mobile;
 
-import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
+import android.util.Log;
+import android.widget.CalendarView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mobile.database.AppDatabase;
+import com.example.mobile.database.model.Transaction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView tvIncome, tvExpense, tvTotal;
+    private TransactionAdapter adapter;
+    private AppDatabase db;
+    private String selectedDate;
+    private int income, expense;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Window window = getWindow();
-        window.getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );
-        window.setStatusBarColor(android.graphics.Color.TRANSPARENT);
+        // RecyclerView 설정
+        RecyclerView recyclerView = findViewById(R.id.recycler_view_transactions);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new TransactionAdapter(new ArrayList<>());
+        recyclerView.setAdapter(adapter);
 
-        findViewById(R.id.btn_add_transaction).setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, AddTransactionActivity.class));
-        });
+        // 합계 표시 텍스트뷰 초기화
+        tvIncome = findViewById(R.id.tv_income);
+        tvExpense = findViewById(R.id.tv_expense);
+        tvTotal = findViewById(R.id.tv_total);
+
+        // Database 연결
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+        // CalendarView 설정
+        CalendarView calendarView = findViewById(R.id.calendar_view);
+        if (calendarView != null) {
+            calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+                selectedDate = year + "-" + (month + 1) + "-" + dayOfMonth; // 멤버 변수에 할당
+                Log.d("CalendarView", "Date Selected: " + selectedDate);
+
+                // 선택된 날짜의 거래 내역 로드
+                loadTransactionsForDate(selectedDate);
+            });
+        }
 
         findViewById(R.id.btn_view_transactions).setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, TransactionListActivity.class));
+            Intent intent = new Intent(MainActivity.this, TransactionListActivity.class);
+            startActivity(intent);
         });
 
         findViewById(R.id.btn_statistics).setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, StatisticsActivity.class));
+            Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+            startActivity(intent);
         });
 
         findViewById(R.id.btn_budget).setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, BudgetActivity.class));
+            Intent intent = new Intent(MainActivity.this, BudgetActivity.class);
+            startActivity(intent);
         });
+
+        findViewById(R.id.btn_add_transaction).setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddTransactionActivity.class);
+            if (selectedDate != null) {
+                intent.putExtra("selectedDate", selectedDate); // 선택된 날짜 전달
+            }
+            startActivity(intent);
+        });
+    }
+
+    private void loadTransactionsForDate(String date) {
+        new Thread(() -> {
+            List<Transaction> transactions = db.transactionDAO().getTransactionsForDate(date);
+
+
+            for (Transaction t : transactions) {
+                if (t.getAmount() > 0) {
+                    income += t.getAmount();
+                } else {
+                    expense += t.getAmount();
+                }
+            }
+
+            int total = income + expense;
+
+            runOnUiThread(() -> {
+                tvIncome.setText("수익: " + income);
+                tvExpense.setText("지출: " + Math.abs(expense));
+                tvTotal.setText("총 금액: " + total);
+                adapter.updateData(transactions);
+            });
+        }).start();
     }
 }

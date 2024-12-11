@@ -10,6 +10,7 @@ import androidx.room.Query;
 import com.example.mobile.database.model.Transaction;
 
 import java.util.List;
+import java.util.Map;
 
 @Dao
 public interface TransactionDAO {
@@ -18,6 +19,9 @@ public interface TransactionDAO {
 
     @Query("SELECT * FROM transaction_table ORDER BY date DESC")
     LiveData<List<Transaction>> getAllTransactions();
+
+    @Query("SELECT * FROM transaction_table WHERE DATE(date) = :date ORDER BY date DESC")
+    List<Transaction> getTransactionsForDate(String date);
 
     @Delete
     void delete(Transaction transaction);

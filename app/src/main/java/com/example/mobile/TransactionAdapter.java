@@ -13,7 +13,7 @@ import com.example.mobile.database.model.Transaction;
 import java.util.List;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
-    private final List<Transaction> transactions;
+    private  List<Transaction> transactions;
 
     public TransactionAdapter(List<Transaction> transactions) {
         this.transactions = transactions;
@@ -48,4 +48,10 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             text2 = view.findViewById(android.R.id.text2);
         }
     }
+
+    public void updateData(List<Transaction> newTransactions) {
+        this.transactions = newTransactions;
+        notifyDataSetChanged();
+    }
+
 }
