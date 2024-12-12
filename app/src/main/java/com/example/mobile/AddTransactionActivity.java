@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class AddTransactionActivity extends AppCompatActivity {
         Spinner spinnerCategory = findViewById(R.id.spinner_category);
         EditText etNote = findViewById(R.id.et_note);
         Button btnSaveTransaction = findViewById(R.id.btn_save_transaction);
+        RadioGroup rgTransactionType = findViewById(R.id.rg_transaction_type);
 
         // 캘린더에서 전달된 날짜를 받아 기본값으로 설정
         String dateString = getIntent().getStringExtra("selectedDate");
@@ -56,6 +58,11 @@ public class AddTransactionActivity extends AppCompatActivity {
             }
 
             int amount = Integer.parseInt(amountStr);
+            if (rgTransactionType.getCheckedRadioButtonId() == R.id.rb_expense) {
+                amount = -amount; // 지출일 경우 음수 처리
+            }
+
+
             String category = spinnerCategory.getSelectedItem() != null ? spinnerCategory.getSelectedItem().toString() : "기타";
             String note = etNote.getText().toString();
 

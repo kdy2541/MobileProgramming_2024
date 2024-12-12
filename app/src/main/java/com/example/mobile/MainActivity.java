@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private TransactionAdapter adapter;
     private AppDatabase db;
     private String selectedDate;
-    private int income, expense;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +83,18 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             List<Transaction> transactions = db.transactionDAO().getTransactionsForDate(date);
 
+            int income = 0, expense = 0;
+
+
+
+            if (transactions == null || transactions.isEmpty()) {
+                Log.d("DB_DEBUG", "No transactions found for date: " + date);
+            } else {
+                for (Transaction t : transactions) {
+                    Log.d("DB_DEBUG", "Transaction: " + t.getCategory() + ", Amount: " + t.getAmount());
+                }
+            }
+
 
             for (Transaction t : transactions) {
                 if (t.getAmount() > 0) {
@@ -94,9 +106,11 @@ public class MainActivity extends AppCompatActivity {
 
             int total = income + expense;
 
+            int finalIncome = income;
+            int finalExpense = expense;
             runOnUiThread(() -> {
-                tvIncome.setText("수익: " + income);
-                tvExpense.setText("지출: " + Math.abs(expense));
+                tvIncome.setText("수익: " + finalIncome);
+                tvExpense.setText("지출: " + Math.abs(finalExpense));
                 tvTotal.setText("총 금액: " + total);
                 adapter.updateData(transactions);
             });

@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">Mobile</string>
     <string-array name="category_array">
-        <item>test1</item>
-        <item>test2</item>
-        <item>test3</item>
-        <item>test4</item>
+        <item>음식</item>
+        <item>여가</item>
+        <item>급여</item>
+        <item>기타</item>
     </string-array>
 </resources>
