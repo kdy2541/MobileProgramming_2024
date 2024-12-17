@@ -32,9 +32,18 @@ public interface TransactionDAO {
     @Query("SELECT SUM(amount) FROM transaction_table WHERE amount < 0 AND strftime('%Y-%m', date / 1000, 'unixepoch') = :month")
     int getMonthlyExpense(String month);
 
+    @Query("SELECT SUM(amount) FROM transaction_table WHERE amount < 0 AND strftime('%Y-%m', date / 1000, 'unixepoch') = strftime('%Y-%m', 'now')")
+    int getMonthlyExpense();
+
     // 카테고리별 지출 합계
     @Query("SELECT category, SUM(amount) AS amount FROM transaction_table WHERE amount < 0 AND strftime('%Y-%m', date / 1000, 'unixepoch') = :month GROUP BY category")
     List<CategoryExpense> getCategoryExpenses(String month);
+
+    @Delete
+    void deleteTransaction(Transaction transaction); // 특정 거래 삭제
+
+    @Query("DELETE FROM transaction_table")
+    void deleteAllTransactions(); // 전체 거래 내역 삭제
 
     public class CategoryExpense {
         public String category;
