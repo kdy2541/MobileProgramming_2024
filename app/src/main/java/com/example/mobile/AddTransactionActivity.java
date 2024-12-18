@@ -43,7 +43,6 @@ public class AddTransactionActivity extends AppCompatActivity {
         if (dateString != null) {
             try {
                 selectedDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dateString);
-                Toast.makeText(this, "선택된 날짜: " + dateString, Toast.LENGTH_SHORT).show();
             } catch (ParseException e) {
                 e.printStackTrace();
             }

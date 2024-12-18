@@ -1,6 +1,7 @@
 package com.example.mobile;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,14 +23,29 @@ public class TransactionListActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+        String selectedDate = getIntent().getStringExtra("selectedDate");
 
         // LiveData 관찰 추가
-        db.transactionDAO().getAllTransactions().observe(this, transactions -> {
-            if (transactions != null) {
-                recyclerView.setAdapter(new TransactionAdapter(transactions));
+        new Thread(() -> {
+            List<Transaction> transactions;
+            if (selectedDate != null) {
+                transactions = db.transactionDAO().getTransactionsForDate(selectedDate);
             } else {
-                recyclerView.setAdapter(new TransactionAdapter(new ArrayList<>()));
+                transactions = db.transactionDAO().getAllTransactions().getValue();
             }
-        });
+
+            runOnUiThread(() -> {
+                recyclerView.setAdapter(new TransactionAdapter(transactions, transaction -> {
+                    // 삭제 기능 구현
+                    new Thread(() -> {
+                        db.transactionDAO().deleteTransaction(transaction);
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "거래가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                            recreate(); // 새로고침
+                        });
+                    }).start();
+                }));
+            });
+        }).start();
     }
 }

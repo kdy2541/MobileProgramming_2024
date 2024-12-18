@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_view_transactions).setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, TransactionListActivity.class);
+            intent.putExtra("selectedDate", selectedDate);
             startActivity(intent);
         });
 
@@ -156,10 +157,12 @@ public class MainActivity extends AppCompatActivity {
             String dailyBudgetInput = etDailyBudget.getText().toString();
             String monthlyBudgetInput = etMonthlyBudget.getText().toString();
 
-            // 입력값 검증: 비어있으면 기본값 할당
-            dailyBudget = dailyBudgetInput.isEmpty() ? 0 : Integer.parseInt(dailyBudgetInput);
-            monthlyBudget = monthlyBudgetInput.isEmpty() ? 0 : Integer.parseInt(monthlyBudgetInput);
+            // 입력값 검증: 비어있거나 유효하지 않은 경우 기본값 0 할당
+            dailyBudget = (!dailyBudgetInput.isEmpty() && isNumeric(dailyBudgetInput))
+                    ? Integer.parseInt(dailyBudgetInput) : 0;
 
+            monthlyBudget = (!monthlyBudgetInput.isEmpty() && isNumeric(monthlyBudgetInput))
+                    ? Integer.parseInt(monthlyBudgetInput) : 0;
             // SharedPreferences에 저장
             SharedPreferences.Editor editor = preferences.edit();
             editor.putInt("dailyBudget", dailyBudget);
@@ -239,6 +242,16 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+
+
+    private boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 
 
 
