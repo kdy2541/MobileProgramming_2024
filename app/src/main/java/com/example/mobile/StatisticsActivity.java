@@ -1,6 +1,10 @@
 package com.example.mobile;
 
+import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,32 +21,55 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class StatisticsActivity extends AppCompatActivity {
+    private BarChart barChart;
+    private PieChart pieChart;
+    private TextView tvBudgetStatus, tvSelectedMonth;
+    private AppDatabase db;
+    private String selectedMonth; // "YYYY-MM" 형식
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_statistics);
 
-        BarChart barChart = findViewById(R.id.bar_chart_income_expense);
-        PieChart pieChart = findViewById(R.id.pie_chart_category);
-        TextView tvBudgetStatus = findViewById(R.id.tv_budget_status);
+        barChart = findViewById(R.id.bar_chart_income_expense);
+        pieChart = findViewById(R.id.pie_chart_category);
+        tvBudgetStatus = findViewById(R.id.tv_budget_status);
+        tvSelectedMonth = findViewById(R.id.tv_selected_month);
+        Button btnSelectMonth = findViewById(R.id.btn_select_month);
 
-        AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-        String currentMonth = "2024-12"; // 테스트용. 실제로는 동적으로 설정 가능.
+        db = AppDatabase.getDatabase(getApplicationContext());
 
+        // 현재 월 설정
+        selectedMonth = getCurrentMonth();
+        tvSelectedMonth.setText(selectedMonth);
+
+        // 데이터 로드
+        loadStatistics(selectedMonth);
+
+        // 월 선택 버튼 클릭 이벤트
+        btnSelectMonth.setOnClickListener(v -> showMonthPicker());
+    }
+
+    private void loadStatistics(String month) {
         new Thread(() -> {
             // 월별 수익/지출 데이터
-            int income = db.transactionDAO().getMonthlyIncome(currentMonth);
-            int expense = db.transactionDAO().getMonthlyExpense(currentMonth);
+            int income = db.transactionDAO().getMonthlyIncome(month);
+            int expense = db.transactionDAO().getMonthlyExpense(month);
 
             // 카테고리별 지출 데이터
-            List<TransactionDAO.CategoryExpense> categoryExpenses = db.transactionDAO().getCategoryExpenses(currentMonth);
+            List<TransactionDAO.CategoryExpense> categoryExpenses = db.transactionDAO().getCategoryExpenses(month);
 
-            // 예산 상태 (예: 월별 예산이 100000인 경우)
-            int monthlyBudget = 100000;
+            // SharedPreferences에서 월별 예산 가져오기
+            int monthlyBudget = getSharedPreferences("BudgetPrefs", MODE_PRIVATE).getInt("monthlyBudget", 0);
             boolean isOverBudget = Math.abs(expense) > monthlyBudget;
 
             runOnUiThread(() -> {
@@ -77,5 +104,38 @@ public class StatisticsActivity extends AppCompatActivity {
                 }
             });
         }).start();
+    }
+
+    private void showMonthPicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    selectedMonth = String.format(Locale.getDefault(), "%d-%02d", year, month + 1);
+                    tvSelectedMonth.setText(selectedMonth);
+                    loadStatistics(selectedMonth);
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+        );
+
+        // DayPicker 숨기기 (안전하게 처리)
+        try {
+            int dayPickerId = getResources().getIdentifier("android:id/day", null, null);
+            View dayPicker = datePickerDialog.getDatePicker().findViewById(dayPickerId);
+            if (dayPicker != null) {
+                dayPicker.setVisibility(View.GONE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        datePickerDialog.show();
+    }
+
+    private String getCurrentMonth() {
+        Calendar calendar = Calendar.getInstance();
+        return new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(calendar.getTime());
     }
 }
