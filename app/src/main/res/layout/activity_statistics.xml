@@ -12,9 +12,10 @@
         android:layout_height="wrap_content"
         android:text="2024-12"
         android:textSize="18sp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bar_chart_income_expense" />
 
     <!-- 월 선택 버튼 -->
     <Button
@@ -23,7 +24,8 @@
         android:layout_height="wrap_content"
         android:text="월 선택"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bar_chart_income_expense" />
 
     <!-- 바 차트 -->
     <com.github.mikephil.charting.charts.BarChart

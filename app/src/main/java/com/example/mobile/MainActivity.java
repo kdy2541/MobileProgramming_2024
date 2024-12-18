@@ -54,24 +54,9 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnSetBudget = findViewById(R.id.btn_set_budget);
         Button btnDeleteAll = findViewById(R.id.btn_delete_all);
-
-        // RecyclerView 설정
-        RecyclerView recyclerView = findViewById(R.id.recycler_view_transactions);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         db = AppDatabase.getDatabase(getApplicationContext());
 
-        adapter = new TransactionAdapter(new ArrayList<>(), transaction -> {
-            new Thread(() -> {
-                db.transactionDAO().deleteTransaction(transaction);
-                runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "거래가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
-                    loadTransactionsForDate(selectedDate);
-                });
-            }).start();
-        });
-        recyclerView.setAdapter(adapter);
-
-
+        // RecyclerView 설정
 
 
         btnSetBudget.setOnClickListener(v -> showBudgetDialog());
@@ -216,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     tvMonthlyBudgetWarning.setVisibility(View.GONE);
                 }
-                adapter.updateData(transactions);
+
 
             });
         }).start();
